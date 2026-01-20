@@ -1,5 +1,5 @@
 from langchain_ollama import ChatOllama, OllamaEmbeddings
-from langchain_chroma import Chroma
+from langchain_postgres import PGVector
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -9,7 +9,7 @@ from langchain_core.runnables import RunnablePassthrough
 llm = ChatOllama(model="gemma3:4b", temperature=0.3)
 embeddings = OllamaEmbeddings(model="embeddinggemma:300m")
 
-# 2. Setup Vector Store
+# 2. Setup Vector Store with PGVector
 texts = [
     "Napoleon Bonaparte was born in 15 August 1769",
     "Louis XIV was born in 5 September 1638",
@@ -17,9 +17,16 @@ texts = [
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
 docs = text_splitter.create_documents(texts)
 
-vectorstore = Chroma.from_documents(
-    documents=docs, embedding=embeddings, persist_directory="./historian_db"
+connection_string = "postgresql+psycopg://langchain:langchain@localhost:5432/langchain"
+collection_name = "historian_collection"
+
+vectorstore = PGVector(
+    embeddings=embeddings,
+    collection_name=collection_name,
+    connection=connection_string,
+    use_jsonb=True,
 )
+vectorstore.add_documents(docs)
 retriever = vectorstore.as_retriever(search_kwargs={"k": 1})
 
 # 3. Define the Historian System Prompt

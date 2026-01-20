@@ -1,0 +1,12 @@
+.git
+.github
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+historian_db
+uv.lock
+README.md
+*.py
