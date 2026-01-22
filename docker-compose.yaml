@@ -1,13 +1,17 @@
+version: '3.8'
+
 services:
   postgres:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: langchain-postgres
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=langchain
-      - POSTGRES_USER=langchain
-      - POSTGRES_PASSWORD=langchain
+      POSTGRES_DB: langchain
+      POSTGRES_USER: langchain
+      POSTGRES_PASSWORD: langchain
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -18,3 +22,4 @@ services:
 
 volumes:
   pgdata:
+    driver: local
